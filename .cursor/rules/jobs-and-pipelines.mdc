@@ -1,0 +1,21 @@
+---
+description: Jobs and pipeline units — discover vs process, single-task and batch, observable outcomes.
+globs: "**/jobs/**/*.py"
+alwaysApply: false
+---
+
+# Orchestration & Execution
+
+
+- **Discover vs. Process:** Strictly separate the logic for finding work ("Discover") from the logic for executing work ("Process"). A job must discover a set of tasks (from storage, config, or prior runs) and expose a dedicated method to process a single task.
+- **Single-Task & Batch Support:** Implement both a single-task execution method (for external schedulers or APIs) and a full-loop batch execution method (for local or scheduled batch runs). Both approaches MUST route through the exact same underlying processing logic.
+
+# Outcomes & State
+
+- **Observable Outcomes:** After processing a task, always return or persist a structured result object or metadata (e.g., file paths, row counts, execution status). This ensures callers and orchestrators know exactly what was accomplished.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Embedded Domain Logic:** Jobs MUST NOT implement core business rules (e.g., entity matching, deduplication, data validation). Jobs are thin orchestrators; they must delegate all business logic to `core/` or feature modules.
+- **NO Side-Effect-Only Jobs:** Do not write tasks that simply execute and return `None` or silently modify state. Always return observable, queryable outcomes.
+- **NO Monolithic Loops:** Do not trap execution logic inside a giant `for` loop that prevents processing a single task in isolation. Always extract the "process one" logic.

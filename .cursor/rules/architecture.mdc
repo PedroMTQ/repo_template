@@ -1,0 +1,45 @@
+---
+description: Architecture design principles, repository structure, multi-package layout, and import conventions.
+globs: "**/*.py"
+alwaysApply: true
+---
+
+# Architecture & Design Principles
+
+- **Config-Driven:** Always use external config (files, env variables). Load all config through a single entry point (e.g., `settings.py`). Domain code MUST depend on injected config/settings.
+- **Run State as First-Class:** Represent pipeline runs and outcomes explicitly with dedicated models (e.g., metadata, metrics). Persist and resolve them so outcomes are queryable.
+- **Thin Orchestration:** Job entrypoints must only discover work and delegate. All business logic lives in `core/` or feature modules, never in the job classes themselves.
+
+# Repository Structure
+
+Use a `src/<package>/` layout. For multi-service, use multiple top-level packages (e.g., `src/common/`, `src/service1/`).
+
+```text
+.
+├── dev/                     # Dev utilities and scripts (include a short README)
+├── src/
+│   └── <package_name>/      # e.g., common, feature_name, or monolithic app
+│       ├── core/            # Internal business logic and services (implementation details)
+│       ├── io/              # Shared IO (logger, S3, Delta, file readers/writers)
+│       ├── jobs/            # Job entrypoints (classes, run/process_task methods, __main__)
+│       └── settings.py      # Config entry point (SERVICE_NAME, paths, env parsing)
+├── .gitignore               # Standard ignores (env, __pycache__, data/, tmp/, uv.lock)
+├── docker-compose.yaml      # Single service building from root
+├── Dockerfile               # Multi-stage uv build (ghcr.io/astral-sh/uv), sync --frozen
+├── Makefile                 # Targets: install, activate, update, test, format, check_uv
+├── pyproject.toml           # Hatchling, uv, ruff (line-length 110, select E/W/F/I/B), pydantic
+└── README.md                # Project overview
+```
+
+# Module & Import Rules
+
+- Absolute Imports Only: Always import from the package root (e.g., from <package>.settings import ... or from data_vault.common.io.s3_client import ...).
+- Dependency Flow: Feature packages and other services can depend on common/. common/ MUST NOT depend on feature packages.
+- common/ includes components shared amongst different services, e.g., shared IO-related clients (e.g., S3, Delta, file readers/writers), base metadata, metrics, and cross-cutting models here (e.g., `common/io/`, `common/core/metadata/`, `common/core/models/`).
+- Expose Small Public APIs: Feature packages should expose config models and client classes at their root, hiding implementation in their core/ subpackage.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Hardcoded Values**: Do not hardcode paths, bucket names, or env keys inside domain or IO code. Centralize them in settings.py.
+- **NO `os.getenv` or Magic Strings:** Keep environment variables and global constants in a central `settings.py` module. Domain and IO code must import from there instead of fetching env vars directly.
+- **NO Circular Imports**: Metadata can depend on settings and IO, but NEVER on jobs or heavy domain logic. Use raw dicts or lazy imports if needed for “already ran” checks.

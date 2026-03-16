@@ -1,0 +1,24 @@
+---
+description: Project tooling — build, dependencies, versioning, containerization, and pyproject.toml standards.
+globs: "**/pyproject.toml"
+alwaysApply: false
+---
+
+# Build & Dependency Management
+
+- **Build Backend:** Use Hatch (`hatchling`) as the build backend for all Python packages.
+- **Dependency Manager:** Exclusively use `uv` for dependency management and virtual environment creation.
+- **Standardized Declarations:** Declare all dependencies strictly in `pyproject.toml` under `[project.dependencies]` following PEP 621. Use `[dependency-groups]` (for `uv`) or `[project.optional-dependencies]` for dev/test/check requirements.
+- **Versioning:** Strictly follow Semantic Versioning (SemVer).
+
+# Package Layout & Containerization
+
+- **Explicit Source Mapping:** Force the `src/` layout by explicitly defining it in the Hatch build targets: `[tool.hatch.build.targets.wheel] packages = ["src/<package_name>"]`.
+- **Container Architecture:** Use Docker and `docker-compose.yaml` to containerize services. A single repository can host multiple containers if using a multi-service layout.
+- **Container Entrypoints:** Docker containers MUST invoke code exclusively through job entrypoints (e.g., `python -m <package_name>.jobs.<job_name>`).
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO `setup.py` or `requirements.txt`:** Never create or use legacy `setup.py` or bare `requirements.txt` files for dependency management. Everything must live in `pyproject.toml`.
+- **NO Ad-hoc `pip install`:** Do not suggest raw `pip install <package>` commands. Always manage dependencies via `uv add <package>` or by directly modifying the `pyproject.toml`.
+- **NO Root-Level Packages:** Never configure the build system to treat the repository root as the Python package root. Always enforce the `src/` directory structure.

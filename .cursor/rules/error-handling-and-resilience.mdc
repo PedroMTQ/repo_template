@@ -1,0 +1,18 @@
+---
+description: Error handling and resilience — fail fast, surface failures, retries for I/O, avoid swallowing exceptions.
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Error Handling & Resilience
+
+- **Fail Fast & Signal:** Validate inputs and configuration early. On unrecoverable errors, immediately raise an exception or exit with a non-zero status so orchestrators and schedulers can detect the failure and alert/retry.
+- **Result Types:** Prefer returning a structured result object or metadata indicating success/failure (with optional error details) to allow callers to safely branch on the outcome without relying solely on exception handling.
+- **Resilient I/O (Retries):** Implement retries with exponential backoff for all external I/O calls (S3, DB, HTTP) or use a client that does. Always cap the maximum number of attempts and cleanly surface the final error.
+
+# STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Swallowed Exceptions:** Never use a bare `except Exception:` followed by a `pass` or `continue`.
+- **NO Broad Catching Without Action:** Catch narrow, specific exceptions where possible. If a broad catch is absolutely necessary, you MUST log the error and either re-raise it or return a clear failure result.
+- **NO Infinite Retries:** Never retry an external call indefinitely. Always set a maximum attempt cap to prevent hanging pipelines.
+- **NO Silent Failures:** Never fail silently on I/O or external calls. Always propagate the final error if retries are exhausted.

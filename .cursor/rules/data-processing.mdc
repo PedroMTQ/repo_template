@@ -1,0 +1,16 @@
+---
+description: Data engineering and I/O — memory-safe processing, chunking, streaming, avoiding OOM.
+globs: "**/core/**/*.py, **/jobs/**/*.py, **/io/**/*.py"
+alwaysApply: false
+---
+
+# Data Processing & Memory Safety
+
+- **Memory-Safe I/O:** Never load entire massive datasets into memory at once. Design data flows to be scalable regardless of file size.
+- **Streaming & Chunking:** Always use chunking, generators, or streaming mechanisms for large I/O operations (e.g., reading from S3 buckets, Delta tables, or multi-gigabyte CSVs/JSONs).
+- **Lazy Evaluation:** Prefer lazy execution frameworks (like `polars.LazyFrame` or PySpark) over eager evaluation (like standard Pandas) when handling heavy data transformations.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO In-Memory Data Dumps:** Do not write `df = pd.read_csv("huge_file.csv")`, `.read()`, or `.readlines()` on massive files without explicitly defining a chunk size or using an iterator.
+- **NO Unbounded Loops:** Avoid unbounded data accumulation in memory (e.g., appending endless rows to a standard Python list) during processing loops. Flush to disk or use batched writes.

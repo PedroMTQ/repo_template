@@ -1,0 +1,28 @@
+---
+description: Testing with pytest; test layout, annotations, docstrings, fixtures.
+globs: "**/tests/**/*.py"
+alwaysApply: false
+---
+
+# Framework & Structure
+
+- **Pytest Exclusive:** Use `pytest` exclusively for all testing. 
+- **Directory Layout:** Place all tests under the root `./tests/` directory. Include `__init__.py` files in `tests/` and its subdirectories to properly structure them as packages.
+- **Naming Conventions:** Test files MUST be named `test_*.py` or `*_test.py`. Test functions MUST start with `test_`.
+
+# Test Construction
+
+- **Strict Typing & Docs:** Test functions must have full type annotations (including `-> None` for returns) and descriptive docstrings summarizing the scenario, holding them to the exact same standard as production code.
+- **Focused Assertions:** Maintain one logical assertion focus per test. 
+- **Parametrization:** Use `@pytest.mark.parametrize` to test multiple input/output scenarios cleanly within a single test function.
+
+# Fixtures & Setup
+
+- **Pytest Fixtures:** Use `pytest` fixtures for all shared setup, teardown, and dependency injection.
+- **Fixture Type Hinting:** Properly type-hint all fixtures. Use `if TYPE_CHECKING:` blocks to import specific typing classes like `CaptureFixture`, `FixtureRequest`, `LogCaptureFixture`, `MonkeyPatch` (from `_pytest.*`), and `MockerFixture` (from `pytest_mock.plugin`).
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO `unittest` Module:** Never use the built-in `unittest` module, `unittest.TestCase` classes, or `self.assert*` methods. Stick purely to `pytest` and standard `assert` statements.
+- **NO "God" Tests:** Do not write massive test functions that assert a dozen unrelated behaviors. Keep tests small, atomic, and logically focused.
+- **NO Copy-Pasted Tests:** Do not duplicate the exact same test function just to change a single input variable or mock return. Always refactor these into `@pytest.mark.parametrize`.

@@ -1,0 +1,27 @@
+---
+description: Code formatting with Ruff; single quotes, line length, lint rules.
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Tooling & Configuration
+
+- **Ruff as Standard:** Use Ruff exclusively for both linting (`ruff check`) and formatting (`ruff format`). This replaces Black, isort, and Flake8.
+- **Centralized Config:** All Ruff configuration (`[tool.ruff]` and `[tool.ruff.format]`) MUST live in the project’s `pyproject.toml` so all tools share a single source of truth.
+
+# Formatting Rules
+
+- **Quotes:** Always use single quotes for standard strings (`quote-style = "single"` in Ruff config).
+- **Line Length:** Maintain a consistent line length in `pyproject.toml`.
+
+# Linting Rules
+
+- **Enabled Checks:** Enable `E`, `W`, `F`, `I`, and `B` rules.
+- **Standard Ignores:** Commonly ignore `E501` (line length, let the formatter handle it), `E402` (module-level import after code), and `B006` (mutable default args). Only add other ignores when heavily justified.
+- **`__init__.py` Exceptions:** Explicitly ignore `E402` in `__init__.py` files to allow package initialization logic to run before imports.
+
+# STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Competing Tools:** Do not introduce or configure Black, isort, or Flake8. Ruff handles everything.
+- **NO Fragmented Configs:** Never create standalone `.flake8`, `.isort.cfg`, or `ruff.toml` files. Keep it strictly inside `pyproject.toml`.
+- **NO Double Quotes:** Do not use double quotes for strings unless strictly required (e.g., inside an f-string or for docstrings).

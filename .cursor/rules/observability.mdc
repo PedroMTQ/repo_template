@@ -1,0 +1,21 @@
+---
+description: Observability — structured logging, log levels, no print in production paths, metrics and tracing.
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Logging Standards
+
+- **Shared Logger:** ALWAYS use the project's centralized logger (e.g., `from <package>.io.logger import logger`). 
+- **Appropriate Levels:** Strictly adhere to standard log levels: `debug` for fine-grained details, `info` for normal pipeline progress, `warning` for recoverable issues, and `error` for explicit failures.
+- **Contextual Logs:** Inject critical identifiers (e.g., `run_id`, `job_name`, `task_id`) into log messages or structured log fields to ensure every action can be traced back to a specific pipeline run.
+
+# Metrics & Tracing
+
+- **Instrumentation:** For production systems, emit metrics (e.g., Prometheus or OpenTelemetry) to track key operations, execution durations, and failure counts.
+- **Distributed Tracing:** Implement distributed tracing for multi-step or multi-service pipelines to monitor end-to-end execution and bottleneck latency.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO `print()` in Production:** Never use raw `print()` statements in job entrypoints, core domain logic, or pipeline code. `print()` is strictly reserved for one-off dev scripts or local `if __name__ == '__main__':` debugging blocks.
+- **NO Contextless Errors:** Do not log generic error messages (e.g., "Failed to process"). Always include the context (what task was running, what the input ID was) so the failure is immediately actionable.

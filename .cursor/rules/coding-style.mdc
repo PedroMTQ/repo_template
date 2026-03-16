@@ -1,0 +1,28 @@
+---
+description: Python coding style — typing, docstrings, naming, Pydantic, settings, imports.
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Code Style & Formatting
+
+- **Typing:** MUST annotate all functions, methods, and class members (including return types). Use specific types (e.g., `list[str]`, `Optional[T]`) over bare `list` or `dict`.
+- **Naming:** `snake_case` (functions, vars), `PascalCase` (classes), `UPPER_SNAKE_CASE` (module constants).
+- **Arguments:** No spaces around `=` in kwargs (e.g., `foo(bar=1)`). MUST use named arguments if calling a function with >2 parameters.
+- **Docstrings:** Follow PEP 257 (summary + details) for all public APIs. Add module-level docstrings for non-trivial files.
+- **Comments:** Strictly preserve existing, accurate comments. Do not delete them for brevity.
+
+# Data & State
+
+- **Pydantic:** Use for config, metadata, and cross-boundary data. Always include `Field(description=...)` and sensible defaults.
+- **Readability:** Implement `__str__` or `__repr__` on metadata and key domain objects for clear logging without raw dict inspection.
+
+# Design Patterns
+
+- **Factories:** Use `classmethod create(...)` to gather context (paths, run IDs) and return fully formed instances. Callers pass only what is strictly necessary.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Relative Imports:** Use absolute imports from the package root only (e.g., `from my_pkg.common.io.s3_client import ...`).
+- **NO Circular Imports:** Metadata/IO can depend on settings, but NEVER on jobs or heavy domain logic.
+- **NO Legacy Typing Imports:** Do not import types from the `typing` module when built-in objects are available (PEP 585). For example, use Python's default `list`, `dict`, and `tuple` instead of `typing.List`, `typing.Dict`, or `typing.Tuple`.

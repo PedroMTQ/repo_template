@@ -1,0 +1,29 @@
+# Virtual env and caches
+.venv/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build and install artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Data and temp (often large or generated)
+data/
+tmp/
+
+# IDE and OS
+.idea/
+.DS_Store
+Thumbs.db
+
+# Node (if present)
+node_modules/
+
+# Git
+.git/

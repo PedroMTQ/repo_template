@@ -1,0 +1,21 @@
+---
+description: Idempotency and concurrency — safe re-runs, document single-worker vs locking assumptions.
+globs: "**/jobs/**/*.py"
+alwaysApply: false
+---
+
+# Idempotency & Safe Execution
+
+- **Strict Idempotency:** Design all pipeline steps and job run methods to be strictly idempotent. Re-running a job with the exact same inputs MUST yield the exact same outcome without causing duplicate side effects (e.g., double writes to a database or file system).
+- **Skip Logic:** Always implement "already ran" checks or skip logic to gracefully bypass redundant execution when a job's desired outcome has already been achieved.
+
+# Concurrency & Scaling
+
+- **Explicit Worker Assumptions:** Clearly document whether a job's design assumes single-worker execution or supports distributed coordination. 
+- **Resource Guards:** If multiple workers might run the same job or touch the same shared resources simultaneously, you MUST implement appropriate locking mechanisms, database transactions, or distributed guards.
+
+# STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Blind Appends:** Never write data (like appending to a file or inserting into a table) without first verifying if the data already exists or using an "upsert" mechanism to prevent duplication.
+- **NO Silent Single-Runner Assumptions:** Never assume "only one runner will execute this" without explicitly stating it in docstrings and enforcing it via job configuration or locks.
+- **NO Unprotected Shared State:** Do not leave shared resources vulnerable to race conditions when multiple jobs or workers could run concurrently.

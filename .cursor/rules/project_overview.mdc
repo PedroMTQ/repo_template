@@ -1,0 +1,36 @@
+---
+description: High-level project overview — repo template structure, purpose, and how to run. Use when answering questions about architecture, adding features, or refactoring.
+globs:
+  - "**/*.py"
+  - "**/README*.md"
+alwaysApply: false
+---
+
+# Project Overview (Repo Template)
+
+## Purpose
+
+This repository is a **template** for Python projects. Use it as a starting point for new repos: clone or copy, rename the package in `pyproject.toml` and under `src/<package_name>/`, then add your domain logic. The layout enforces a single config entry point, thin job orchestration, and shared IO/logging.
+
+## Stack
+
+- **Python**: 3.11 (or as specified in `pyproject.toml`).
+- **Tooling**: `uv` for dependencies and venvs, Hatch (`hatchling`) for build, Ruff for lint and format.
+- **Config**: Central `settings.py` (SERVICE_NAME, paths, env); domain and IO code import from there.
+- **Container**: Docker + docker-compose; multi-stage build with `uv`, run via job entrypoints.
+
+## Key layout (see architecture rule for full tree)
+
+- **Root**: `README.md`, `pyproject.toml`, `Makefile`, `Dockerfile`, `docker-compose.yaml`, `.gitignore`, `dev/`.
+- **Package** (`src/<package_name>/`): `settings.py`, `io/` (e.g. logger), `core/` (business logic), `jobs/` (entrypoints with discover/process, `if __name__ == '__main__'`).
+- **Tests**: Under `./tests/` with `__init__.py`, `conftest.py`, and `test_*.py` / `*_test.py`; run with `pytest` or `make test`.
+
+## How to run
+
+- **Install**: `make install` (creates venv in `~/envs/<PACKAGE>`), then `make activate` to enter it.
+- **Update deps**: `make update`.
+- **Test**: `make test` or `pytest`.
+- **Format/lint**: `make format` (Ruff check + format).
+- **Container**: `docker compose build` then run the service; containers invoke code via `python -m <package>.jobs.<job_name>`.
+
+When adding features or changing behavior, keep config in `settings.py`, business logic in `core/` or feature modules, and jobs as thin orchestrators. For full structure and import rules, follow the architecture rule.

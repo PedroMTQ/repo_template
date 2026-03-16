@@ -1,0 +1,17 @@
+---
+description: README and project docs — keep in sync with entrypoints, config, and how to run.
+globs: "**/*.md"
+alwaysApply: false
+---
+
+# Documentation Standards
+
+- **Core Content:** Every project `README.md` MUST clearly define what the repository does, how to run it (installation, Makefile targets, main commands), and the primary entrypoints (e.g., CLI, job modules).
+- **Configuration & Environment:** Explicitly list all required environment variables, secrets, and configuration files. If exhaustive reference documentation exists elsewhere, provide a clear summary and a direct link rather than duplicating it.
+- **Atomic Updates:** Documentation must evolve with the code. Whenever you refactor architecture, rename folders, change entrypoints, or alter configuration requirements, you MUST update the README in the exact same commit/pass.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO Stale Architecture:** Never leave outdated folder names, missing steps, or deprecated architectural descriptions in the README after a refactor.
+- **NO Undocumented Entrypoints:** Do not add new jobs, CLI commands, or Makefile targets without adding corresponding execution instructions to the README.
+- **NO Silent Config Changes:** Never introduce a new required environment variable or `settings.py` parameter without documenting it in the README's configuration section.

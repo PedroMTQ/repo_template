@@ -1,0 +1,21 @@
+---
+description: Verification and success criteria — define how to verify changes; run tests or checks after edits.
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Verification & Success Criteria
+
+- **Define Success Upfront:** When implementing or modifying behavior, explicitly define how the change will be verified. Always point to specific tests, expected outputs, or validation commands (e.g., `pytest`, `make test`, `ruff check`).
+- **Self-Verification:** As an AI agent, you MUST attempt to verify your own work. Do not simply write code and wait for human review if a verification command is available and you have terminal access.
+
+# Post-Edit Workflow
+
+- **Run Checks After Edits:** Immediately after modifying code, execute the relevant tests (e.g., `pytest path/to/test_file.py`) and formatting checks (`ruff check`, `ruff format`) to ensure the changes are safe and conform to project standards.
+- **Iterate on Failure:** If a test or linter check fails after your edits, you must analyze the failure and fix the code before considering the task complete.
+
+# 🚫 STRICT ANTI-PATTERNS (DO NOT DO THESE)
+
+- **NO "Blind" Coding:** Never declare a feature complete without explaining, demonstrating, or running the verification steps that prove it works.
+- **NO Broken State Handoffs:** Do not stop working or hand code back to the user if your edits have broken existing tests, introduced Ruff linting errors, or caused Mypy type violations. Fix them first.
+- **NO Running the Entire Suite Unnecessarily:** Do not run the entire `pytest` suite for a small, localized change unless explicitly asked. Target the specific test file related to the edits to save time and context.
