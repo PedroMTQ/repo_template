@@ -2,7 +2,6 @@
 
 from unittest.mock import patch
 
-import pytest
 
 from repo_template.core.my_service import my_mock_function
 

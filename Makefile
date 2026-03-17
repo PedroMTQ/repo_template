@@ -34,7 +34,6 @@ install:
 		echo "Install complete. Use 'make activate' to activate it"
 	else
 		echo "Environment for $${ENV["PACKAGE"]} already exists at $${ENV["ENV_PATH"]}. Use 'make activate' to activate it, or 'make update' to update it."
-
 	fi
 	unset ENV
 
@@ -49,9 +48,8 @@ activate:
 		echo "Error: Environment not found. Run 'make install' first."
 		exit 1
 	fi
-	echo "--- Entering $${ENV["PACKAGE"]} environment (type 'exit' to leave) ---"
-	# We only export the guard and the prompt. The 'ENV' dictionary dies with this recipe.
-	bash --rcfile <(echo "source ~/.bashrc; source $${ENV["ENV_PATH"]}; export IN_MAKE_SHELL=true")
+	echo "--- Entering $${ENV["PACKAGE"]} environment and sourcing .env (type 'exit' to leave) ---"
+	bash --rcfile <(echo "source ~/.bashrc; source scripts/load_dot_env.sh; source $${ENV["ENV_PATH"]}; export IN_MAKE_SHELL=true")
 	unset ENV
 
 # --- 3. Update ---
@@ -68,42 +66,14 @@ update:
 	unset ENV
 	echo "Update complete."
 
-
-# --- New: Test ---
-test: check_uv
+test:
+	@echo "Running tests via uv..."
 	@$(SETUP_ENV_VARS)
-	if [ ! -d "$${ENV["ENV_DIR"]}" ]; then
-		echo "Error: Environment not found. Run 'make install' first."
-		exit 1
-	fi
-	
-	source "$${ENV["ENV_PATH"]}"
-	# Check if pytest is available, if not, add it
-	if ! command -v pytest >/dev/null 2>&1; then
-		echo "pytest not found. Installing..."
-		uv add pytest --dev --active
-	fi
-	
-	echo "Running tests for $${ENV["PKG"]}..."
-	pytest
+	bash --rcfile <(echo "source ~/.bashrc; source scripts/load_dot_env.sh; source $${ENV["ENV_PATH"]}; export IN_MAKE_SHELL=true") \
+	-c "uv run --with pytest pytest -q"
 	unset ENV
 
-# --- New: Format ---
-format: check_uv
-	@$(SETUP_ENV_VARS)
-	if [ ! -d "$${ENV["ENV_DIR"]}" ]; then
-		echo "Error: Environment not found. Run 'make install' first."
-		exit 1
-	fi
-
-	echo "Running ruff formatter/linter..."
-	source "$${ENV["ENV_PATH"]}"
-	# Check if ruff is available
-	if ! command -v ruff >/dev/null 2>&1; then
-		echo "ruff not found. Installing..."
-		uv add ruff --dev --active
-	fi
-	
-	ruff check . --fix
-	ruff format .
-	unset ENV
+format:
+	@echo "Running ruff formatter/linter via temporary uv environment..."
+	uv run --with ruff ruff check . --fix
+	uv run --with ruff ruff format .
